@@ -137,6 +137,46 @@
   .scroll-hint::after{content:"";width:1px;height:40px;background:linear-gradient(var(--red),transparent);animation:drop 1.8s ease-in-out infinite}
   @keyframes drop{0%,100%{transform:scaleY(.4);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
 
+  /* SCROLL-TO-OPEN LOGO GATE */
+  .gate{position:relative}
+  .gate.gate-on{height:230vh}
+  .gate.gate-on .hero{position:sticky;top:0;height:100svh;min-height:0}
+  .gate.gate-on .hero-inner{opacity:0;will-change:opacity,transform}
+  .gate.gate-on .scroll-hint{opacity:0}
+  .gate-doors,.gate-fx{display:none}
+  .gate.gate-on .gate-doors,.gate.gate-on .gate-fx{display:block}
+  .gate-doors{position:absolute;inset:0;z-index:20;pointer-events:none;overflow:hidden}
+  .gate-doors .door{position:absolute;top:0;height:100%;width:50%;overflow:hidden;will-change:transform;backface-visibility:hidden}
+  .gate-doors .door-l{left:0;--gx:100%}
+  .gate-doors .door-r{right:0;--gx:0%}
+  .gate-doors .door::before{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(72% 56% at var(--gx) 39%, color-mix(in srgb,var(--red) 34%,transparent), transparent 62%),
+      linear-gradient(180deg,#0d0d12,#050506)}
+  html[data-theme="light"] .gate-doors .door::before{
+    background:
+      radial-gradient(72% 56% at var(--gx) 39%, color-mix(in srgb,var(--red) 42%,transparent), transparent 62%),
+      linear-gradient(180deg,#1a1a20,#0a0a0d)}
+  .gate-doors .door::after{content:"";position:absolute;inset:0;opacity:.35;
+    background-image:repeating-linear-gradient(90deg,transparent 0 calc(11.11% - 1px),rgba(244,241,234,.06) calc(11.11% - 1px) 11.11%)}
+  .gm{position:absolute;top:39%;width:clamp(172px,26vw,300px);aspect-ratio:900/857;will-change:transform}
+  .gm img{width:100%;height:100%;display:block;filter:drop-shadow(0 22px 55px rgba(0,0,0,.6))}
+  .door-l .gm{right:0;transform:translate(50%,-50%)}
+  .door-r .gm{left:0;transform:translate(-50%,-50%)}
+  .gate-seam{position:absolute;left:50%;top:9%;height:82%;width:2px;transform:translateX(-50%);
+    background:linear-gradient(transparent,var(--red),transparent);box-shadow:0 0 26px 2px var(--red);opacity:0}
+  .gate-fx{position:absolute;inset:0;z-index:21;pointer-events:none}
+  .gate-word{position:absolute;left:50%;top:63%;transform:translate(-50%,-50%);width:clamp(200px,37vw,410px);
+    filter:drop-shadow(0 14px 40px rgba(0,0,0,.55));will-change:opacity,transform}
+  .gate-hint{position:absolute;left:50%;bottom:7.5%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:12px;
+    font-size:.64rem;letter-spacing:.4em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:center}
+  .gate-hint i{width:1px;height:40px;background:linear-gradient(var(--red),transparent);animation:drop 1.8s ease-in-out infinite}
+  @media(max-width:700px){
+    .gm{top:43%;width:clamp(150px,44vw,220px)}
+    .gate-word{top:59%;width:clamp(190px,60vw,300px)}
+    .gate-hint{bottom:9%}
+  }
+
   /* MARQUEE */
   .marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-2);padding:16px 0;overflow:hidden;white-space:nowrap;position:relative}
   .marquee .track{display:inline-flex;animation:slide 26s linear infinite;will-change:transform}
@@ -477,6 +517,7 @@
   <a href="#videos">Videos</a><a href="#label">827 Entertainment</a><a href="#shop">Shop</a><a href="#contact">Booking</a>
 </div>
 
+<div class="gate" id="gate">
 <header class="hero" id="top">
   <div class="hero-bg" id="heroBg"><div class="lines"></div><div class="glow"></div></div>
   <div class="hero-inner">
@@ -495,7 +536,19 @@
     </div>
   </div>
   <div class="scroll-hint">Scroll</div>
+
+  <!-- SCROLL-TO-OPEN LOGO GATE (mask splits apart to reveal the site) -->
+  <div class="gate-doors" id="gateDoors" aria-hidden="true">
+    <div class="door door-l"><div class="gm"><img src="assets/827-mask.png" alt="" /></div></div>
+    <div class="door door-r"><div class="gm"><img src="assets/827-mask.png" alt="" /></div></div>
+    <div class="gate-seam"></div>
+  </div>
+  <div class="gate-fx" id="gateFx" aria-hidden="true">
+    <img class="gate-word" src="assets/827-wordmark.png" alt="827 Entertainment" />
+    <div class="gate-hint"><span>Scroll to Enter</span><i></i></div>
+  </div>
 </header>
+</div>
 
 <div class="marquee" aria-hidden="true">
   <div class="track">
@@ -966,7 +1019,45 @@ const PRODUCTS = [
   var nav=document.getElementById('nav');
   window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>40);},{passive:true});
   var heroBg=document.getElementById('heroBg');
-  if(!reduce){ window.addEventListener('scroll',function(){var y=window.scrollY;if(y<window.innerHeight)heroBg.style.transform='translateY('+(y*0.28)+'px)';},{passive:true}); }
+  if(!reduce){ window.addEventListener('scroll',function(){var y=window.scrollY;if(!root.classList.contains('gate-live') && y<window.innerHeight)heroBg.style.transform='translateY('+(y*0.28)+'px)';},{passive:true}); }
+
+  /* ---- SCROLL-TO-OPEN LOGO GATE ---- */
+  (function(){
+    var gate=document.getElementById('gate'); if(!gate) return;
+    var gDoors=document.getElementById('gateDoors'), gFx=document.getElementById('gateFx');
+    var doorL=gate.querySelector('.door-l'), doorR=gate.querySelector('.door-r');
+    var gmL=doorL.querySelector('.gm'), gmR=doorR.querySelector('.gm');
+    var gWord=gate.querySelector('.gate-word'), gHint=gate.querySelector('.gate-hint'), gSeam=gate.querySelector('.gate-seam');
+    var hInner=gate.querySelector('.hero-inner'), navEl=document.getElementById('nav');
+    var cl=function(v,a,b){return v<a?a:(v>b?b:v);};
+    var ease=function(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;};
+    function update(){
+      var runway=gate.offsetHeight-window.innerHeight;
+      var p=runway>0?cl(window.scrollY/runway,0,1):0, e=ease(p);
+      doorL.style.transform='translate3d('+(-e*100)+'%,0,0)';
+      doorR.style.transform='translate3d('+(e*100)+'%,0,0)';
+      gmL.style.transform='translate(50%,-50%) rotate('+(-e*7)+'deg)';
+      gmR.style.transform='translate(-50%,-50%) rotate('+(e*7)+'deg)';
+      var wf=cl(p/0.26,0,1);
+      gWord.style.opacity=(1-wf);
+      gWord.style.transform='translate(-50%,-50%) translateY('+(wf*24)+'px) scale('+(1-wf*0.06)+')';
+      gHint.style.opacity=cl(1-p/0.10,0,1);
+      if(gSeam) gSeam.style.opacity=cl((p-0.02)/0.12,0,1)*cl(1-(p-0.5)/0.4,0,1)*0.9;
+      var hr=cl((p-0.4)/0.5,0,1);
+      hInner.style.opacity=hr; hInner.style.transform='translateY('+((1-hr)*24)+'px)';
+      navEl.style.opacity=cl((p-0.06)/0.34,0,1);
+      var go=cl(1-(p-0.92)/0.08,0,1);
+      gDoors.style.opacity=go; gFx.style.opacity=go;
+      gDoors.style.visibility=gFx.style.visibility=(p>=1?'hidden':'visible');
+    }
+    if(!reduce){
+      gate.classList.add('gate-on'); root.classList.add('gate-live');
+      var tick=false;
+      window.addEventListener('scroll',function(){ if(!tick){tick=true;requestAnimationFrame(function(){update();tick=false;});} },{passive:true});
+      window.addEventListener('resize',update);
+      update();
+    }
+  })();
   var mm=document.getElementById('mobileMenu');
   function closeMenu(){mm.classList.remove('show');body.classList.remove('locked');}
   document.getElementById('burger').addEventListener('click',function(){mm.classList.add('show');body.classList.add('locked');});
