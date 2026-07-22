@@ -8,6 +8,14 @@
 <meta property="og:title" content="827 Entertainment" />
 <meta property="og:description" content="Bankhead Muscle. Atlanta Stories. Independent Legacy." />
 <meta property="og:type" content="website" />
+<meta property="og:image" content="assets/og-cover.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="827 Entertainment" />
+<meta name="twitter:description" content="Bankhead Muscle. Atlanta Stories. Independent Legacy." />
+<meta name="twitter:image" content="assets/og-cover.jpg" />
+<meta name="theme-color" content="#e10600" />
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet" />
@@ -43,6 +51,9 @@
   #loader .panel{position:absolute;left:0;width:100%;height:50%;background:#050506;z-index:2}
   #loader .panel.top{top:0}#loader .panel.bot{bottom:0}
   #loader .core{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:22px}
+  #loader .load-mask{width:clamp(84px,16vw,120px);height:auto;opacity:0;transform:translateY(10px) scale(.92);filter:drop-shadow(0 8px 30px rgba(225,6,0,.4))}
+  .booting #loader .load-mask{animation:maskin .7s var(--ease) .1s forwards}
+  @keyframes maskin{to{opacity:1;transform:translateY(0) scale(1)}}
   #loader .mark{font-family:'Anton',sans-serif;font-size:clamp(5rem,22vw,11rem);color:#f4f1ea;display:flex;line-height:1}
   #loader .mark span{display:inline-block;transform:translateY(115%);opacity:0}
   #loader .mark span:nth-child(2){color:var(--red)}
@@ -71,6 +82,9 @@
   .brand{display:flex;align-items:center;gap:11px;font-family:'Anton',sans-serif;font-size:1.5rem;letter-spacing:.02em}
   .brand .dot{width:9px;height:9px;background:var(--red);border-radius:50%;box-shadow:0 0 12px var(--red)}
   .brand small{font-family:'Archivo';font-size:.56rem;letter-spacing:.34em;color:var(--muted);font-weight:700;align-self:flex-end;padding-bottom:5px}
+  .brand .brand-logo{height:42px;width:auto;display:block;transition:transform .3s var(--ease),filter .3s}
+  .brand:hover .brand-logo{transform:scale(1.04)}
+  html[data-theme="light"] .brand .brand-logo{filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
   .nav-links{display:flex;align-items:center;gap:24px}
   .nav-links a{font-size:.78rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;color:var(--muted);position:relative;transition:color .25s;padding:6px 0}
   .nav-links a:hover{color:var(--text)}
@@ -328,6 +342,7 @@
   footer{background:var(--bg);border-top:1px solid var(--line);padding:clamp(50px,7vh,80px) clamp(16px,4vw,42px) 30px}
   .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-bottom:50px}
   .foot-brand .brand{font-size:2.4rem;margin-bottom:16px}
+  .foot-brand .foot-logo{height:62px;width:auto;margin-bottom:20px}
   .foot-brand p{color:var(--muted);font-size:.88rem;max-width:320px}
   .foot-col h5{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:16px;font-weight:800}
   .foot-col a{display:block;color:var(--muted);font-size:.88rem;padding:5px 0;transition:.2s}
@@ -421,6 +436,7 @@
 <div id="loader" aria-hidden="true">
   <div class="panel top"></div><div class="panel bot"></div>
   <div class="core">
+    <img src="assets/827-mask.png" alt="" class="load-mask" />
     <div class="mark"><span>8</span><span>2</span><span>7</span></div>
     <div class="track"><i></i></div>
     <div class="status">827 Entertainment — Now Departing</div>
@@ -428,7 +444,9 @@
 </div>
 
 <nav id="nav">
-  <a href="#top" class="brand">827<small>ENT</small><span class="dot"></span></a>
+  <a href="#top" class="brand" aria-label="827 Entertainment — home">
+    <img src="assets/827-horizontal.png" alt="827 Entertainment" class="brand-logo" width="176" height="44" />
+  </a>
   <div class="nav-links">
     <a href="#artists">Artists</a>
     <a href="#music">Music</a>
@@ -623,7 +641,7 @@
   <div class="wrap">
     <div class="foot-top">
       <div class="foot-brand">
-        <div class="brand">827<small>ENT</small><span class="dot"></span></div>
+        <img src="assets/827-horizontal.png" alt="827 Entertainment" class="foot-logo" width="260" height="65" />
         <p>The independent Atlanta home for music, film and legacy. Bankhead Muscle. Atlanta Stories. Independent Legacy.</p>
         <div class="socials">
           <a href="#" aria-label="Instagram" title="Handle pending confirmation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
