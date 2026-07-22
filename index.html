@@ -33,9 +33,9 @@
     --shadow:0 30px 70px -34px rgba(60,40,30,.35);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;background:var(--bg);overscroll-behavior:none}
   body{font-family:'Archivo',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;
-    -webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .5s var(--ease),color .5s var(--ease)}
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;overscroll-behavior-y:none;transition:background .5s var(--ease),color .5s var(--ease)}
   body.locked{overflow:hidden;height:100vh}
   a{color:inherit;text-decoration:none}
   img{display:block;max-width:100%}
@@ -394,6 +394,12 @@
   .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.74rem;color:var(--muted)}
   .foot-bottom .disc{max-width:660px;line-height:1.6}
   .foot-bottom a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+  .foot-credit{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);text-align:center}
+  .foot-credit a{display:inline-flex;align-items:center;gap:.45em;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;opacity:.7;transition:opacity .25s,color .25s}
+  .foot-credit a span{color:var(--text);font-weight:800;letter-spacing:.14em}
+  .foot-credit a:hover{opacity:1;color:var(--red)}
+  .foot-credit a:hover span{color:var(--red)}
 
   .mobile-menu{position:fixed;inset:0;z-index:55;background:var(--bg);transform:translateY(-100%);transition:transform .5s var(--ease);display:flex;flex-direction:column;justify-content:center;padding:0 32px;gap:6px}
   .mobile-menu.show{transform:none}
@@ -708,6 +714,9 @@
     <div class="foot-bottom">
       <p class="disc">© <span id="yr"></span> 827 Entertainment · Atlanta, GA. Prototype build. Artist portraits, film details, socials, business info and product data marked <em>pending</em> require client confirmation before launch. Original release credits preserved where required.</p>
       <div><a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Returns</a> · <a href="#">Shipping</a></div>
+    </div>
+    <div class="foot-credit">
+      <a href="https://liv8ai.com" target="_blank" rel="noopener">Powered by <span>LIV8</span></a>
     </div>
   </div>
 </footer>
