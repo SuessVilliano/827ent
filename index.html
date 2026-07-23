@@ -368,6 +368,48 @@
   .cart-f .disc{font-size:.7rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
   .cart-f .btn{width:100%;justify-content:center}
 
+  /* ARTIST CARD -> PRESS KIT */
+  .artist{cursor:pointer}
+  .artist:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+  .artist .a-cta{display:inline-flex;align-items:center;gap:8px;margin-top:16px;align-self:flex-start;
+    font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#f4f1ea;
+    border:1px solid rgba(244,241,234,.3);padding:9px 14px;border-radius:2px;transition:.25s}
+  .artist:hover .a-cta,.artist:focus-visible .a-cta{background:var(--red);border-color:var(--red)}
+  .artist .a-cta span{transition:transform .25s var(--ease)}
+  .artist:hover .a-cta span{transform:translateX(4px)}
+
+  /* PRESS KIT OVERLAY */
+  .pk-overlay{position:fixed;inset:0;z-index:85;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;
+    opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s var(--ease),transform .4s var(--ease),visibility .4s}
+  .pk-overlay.show{opacity:1;visibility:visible;transform:none}
+  .pk-panel{max-width:1180px;margin:0 auto;padding:clamp(14px,3vw,28px) clamp(16px,4vw,42px) 80px;min-height:100%}
+  .pk-close{position:sticky;top:12px;z-index:3;background:color-mix(in srgb,var(--surface) 86%,transparent);backdrop-filter:blur(8px);
+    border:1px solid var(--line-strong);color:var(--text);font-family:'Archivo';font-weight:700;font-size:.72rem;letter-spacing:.12em;
+    text-transform:uppercase;padding:10px 16px;border-radius:2px;cursor:pointer;transition:.25s}
+  .pk-close:hover{border-color:var(--red);color:var(--red)}
+  .pk-hero{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:clamp(24px,4vw,54px);align-items:center;padding:22px 0 20px}
+  .pk-photo{position:relative;aspect-ratio:4/5;border-radius:8px;overflow:hidden;border:1px solid var(--line);
+    background:radial-gradient(120% 120% at 70% 10%,color-mix(in srgb,var(--red) 30%,transparent),transparent 55%),linear-gradient(160deg,#17171c,#050506)}
+  html[data-theme="light"] .pk-photo{background:radial-gradient(120% 120% at 70% 10%,color-mix(in srgb,var(--red) 34%,transparent),transparent 55%),linear-gradient(160deg,#2b2b31,#111115)}
+  .pk-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(.25) contrast(1.05)}
+  .pk-photo .pk-mono{position:absolute;inset:0;display:grid;place-items:center;font-family:'Anton';font-size:clamp(4rem,12vw,7rem);
+    color:transparent;-webkit-text-stroke:2px rgba(244,241,234,.5);line-height:.8;text-align:center}
+  .pk-photo-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(5,5,6,.55),transparent 55%);pointer-events:none}
+  .pk-intro .eyebrow{margin-bottom:14px}
+  .pk-name{font-family:'Anton';font-size:clamp(2.6rem,8vw,5rem);line-height:.9;text-transform:uppercase;margin-bottom:6px}
+  .pk-alias{color:var(--red);font-weight:700;letter-spacing:.06em;margin-bottom:6px}
+  .pk-role{color:var(--muted);font-size:.86rem;text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+  .pk-tags{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+  .pk-tags span{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:5px 11px;border-radius:99px}
+  .pk-bio{color:var(--text);max-width:58ch;font-size:1rem;margin-bottom:20px}
+  .pk-links{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+  .pk-actions{display:flex;flex-wrap:wrap;gap:12px}
+  .pk-sec{padding:36px 0;border-top:1px solid var(--line);margin-top:14px}
+  .pk-sec .sec-head{margin-bottom:26px}
+  .pk-sec .sec-head h3{font-family:'Anton';font-size:clamp(1.9rem,4vw,2.9rem);text-transform:uppercase;line-height:.92}
+  .pk-sec .sec-head .idx{font-family:'Archivo';font-weight:800;color:var(--red);font-size:.8rem;letter-spacing:.2em;margin-bottom:10px;display:block}
+  @media(max-width:820px){ .pk-hero{grid-template-columns:1fr;padding-top:14px} .pk-photo{max-width:300px} }
+
   /* FORMS */
   .contact{background:var(--bg-2);border-top:1px solid var(--line)}
   .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,64px)}
@@ -577,7 +619,7 @@
   <div class="wrap">
     <div class="sec-head reveal">
       <div><span class="idx">01 — The Roster</span><h2>Artists</h2></div>
-      <p>The voices of 827 Entertainment. Rooted in Atlanta's Westside, built independent.</p>
+      <p>The voices of 827 Entertainment — rooted in Atlanta's Westside, built independent. Tap any artist for their full press kit &amp; catalog.</p>
     </div>
     <div class="roster" id="rosterGrid"></div>
   </div>
@@ -781,6 +823,11 @@
   </div>
 </aside>
 
+<!-- ARTIST PRESS KIT / CATALOG (opens from an artist card) -->
+<div class="pk-overlay" id="pkOverlay" role="dialog" aria-modal="true" aria-label="Artist press kit and catalog" aria-hidden="true">
+  <div class="pk-panel" id="pkPanel"></div>
+</div>
+
 <script>
 /* ============================================================
    827 ENTERTAINMENT — SITE CONTENT (edit here, no HTML needed)
@@ -795,20 +842,23 @@
 const ARTISTS = [
   {
     name:"Westside Train", alias:"a.k.a. Bigg Mob", role:"Founder · Artist · Filmmaker",
-    mono:"WT", img:null,                       // <-- add portrait URL here
+    slug:"westside-train", mono:"WT", img:null,      // <-- add portrait URL here
     tags:["Bankhead","Perry Homes","Westside"],
+    bio:"The founder of 827 and the engine behind the Bankhead Muscle series. A Perry Homes product turned artist and filmmaker, Westside Train turns real Westside Atlanta stories — the survival, the loyalty, the come-up — into music and film with a hustler's clarity.",
     links:[{label:"Apple Music", url:"https://music.apple.com/us/artist/westside-train/808834216"}]
   },
   {
     name:"Dra", alias:"D.R.A", role:"Artist",
-    mono:"DRA", img:null,                       // <-- add portrait URL here
-    tags:["Atlanta","Hip-Hop"],
+    slug:"dra", mono:"DRA", img:null,                // <-- add portrait URL here
+    tags:["Atlanta","Hip-Hop","Westside"],
+    bio:"Atlanta hip-hop with a menace's edge. Dra delivers street narratives raw and unfiltered — anchored by his full-length 'Life of a Menace' and a catalog built the independent way.",
     links:[{label:"Apple Music", url:"https://music.apple.com/us/artist/dra/208633217"}]
   },
   {
     name:"Cario", alias:"", role:"Artist",
-    mono:"CAR", img:null,                       // <-- add portrait URL here
-    tags:["Atlanta","Hip-Hop"],
+    slug:"cario", mono:"CAR", img:null,              // <-- add portrait URL here
+    tags:["Atlanta","Hip-Hop","827"],
+    bio:"One of 827's sharpest pens. Concise, hard-hitting Atlanta rap across projects like 'The Warm Up' and 'Jimmy 2X,' plus a long run of standout features throughout the Bankhead Muscle catalog.",
     links:[{label:"Apple Music", url:"https://music.apple.com/us/artist/cario/1487735215"}]
   }
 ];
@@ -819,10 +869,10 @@ const ARTISTS = [
    featured:true  -> also shown in the big module up top */
 const RELEASES = [
   {
-    title:"Bankhead Muscle 3", artist:"Westside Train", year:2017, type:"album",
+    title:"Bankhead Muscle 3", artist:"Westside Train", type:"album", artistSlug:"westside-train",
     tracks:12, duration:"41 min", genre:"Hip-Hop/Rap", featured:true,
     cover:"https://is1-ssl.mzstatic.com/image/thumb/Music117/v4/6f/a7/6a/6fa76a04-8b3b-fb82-2f53-ff8e66e796b2/864737000364_cover.jpg/1000x1000bb.jpg",
-    mono:"BM3", credit:"Original release ℗ 2017 (archival credit).",
+    mono:"BM3", credit:"Original release credits preserved.",
     blurb:"The flagship project — twelve tracks of Westside Atlanta hustle, survival and storytelling.",
     primary:"https://music.apple.com/us/album/bankhead-muscle-3/1246477455",
     platforms:[
@@ -840,28 +890,36 @@ const RELEASES = [
     ]
   },
   {
-    title:"Life of a Menace", artist:"Dra", year:2018, type:"album",
+    title:"Life of a Menace", artist:"Dra", type:"album", artistSlug:"dra",
     tracks:12, duration:"36 min", genre:"Hip-Hop/Rap", featured:false,
     cover:"https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/e0/49/8f/e0498fd5-7c4d-b168-fb54-c67aaa848fa2/804839000985_cover.jpg/1000x1000bb.jpg",
-    mono:"LOM", credit:"Original release ℗ 2018 (archival credit).",
+    mono:"LOM", credit:"Original release credits preserved.",
     blurb:"Dra's debut full-length — twelve tracks of raw Atlanta storytelling.",
     primary:"https://music.apple.com/us/album/life-of-a-menace/1367249190",
     platforms:[{label:"Apple Music", url:"https://music.apple.com/us/album/life-of-a-menace/1367249190"}],
     tracklist:[["Str8","feat. Cario"],["Harder","feat. Trust & Br Cody"],["My Brother","feat. Br Cody"]] // partial — full list pending
   },
   {
-    title:"Jimmy 2X", artist:"Cario & No Love", year:2022, type:"album",
+    title:"Jimmy 2X", artist:"Cario & No Love", type:"album", artistSlug:"cario",
     tracks:7, duration:"22 min", genre:"Hip-Hop/Rap", featured:false,
     cover:"https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/0b/09/57/0b0957de-71f7-5604-675e-2645e541339a/artwork.jpg/1000x1000bb.jpg",
-    mono:"J2X", credit:"Original release ℗ 2022 (archival credit).",
+    mono:"J2X", credit:"Original release ℗ Cario (archival credit).",
     blurb:"Cario's seven-track run with No Love — hard, concise, all Atlanta.",
     primary:"https://music.apple.com/us/album/jimmy-2x/1603385406",
     platforms:[{label:"Apple Music", url:"https://music.apple.com/us/album/jimmy-2x/1603385406"}],
     tracklist:[["No Business",""],["If God Willing",""],["Heat",""],["Already Knowing",""],["Eddie Griffin",""],["Spin It",""],["Whatever It Takes",""]]
   },
-  { title:"Bankhead Muscle 2", artist:"Westside Train", year:null, type:"album", cover:null, mono:"BM2",
-    blurb:"Earlier installment — artwork, tracklist & date pending from client.", archive:true },
-  { title:"Bankhead Muscle 1", artist:"Westside Train", year:null, type:"album", cover:null, mono:"BM1",
+  {
+    title:"The Warm Up", artist:"Cario", type:"album", artistSlug:"cario",
+    tracks:null, duration:"", genre:"Hip-Hop/Rap", featured:false,
+    cover:null, mono:"WU",                       // <-- add Apple cover URL here when available
+    blurb:"Cario in his bag — a concise, hard-nosed Atlanta run.",
+    primary:"https://music.apple.com/us/album/the-warm-up/1505873899",
+    platforms:[{label:"Apple Music", url:"https://music.apple.com/us/album/the-warm-up/1505873899"}]
+  },
+  { title:"Bankhead Muscle 2", artist:"Westside Train", type:"album", artistSlug:"westside-train", cover:null, mono:"BM2",
+    blurb:"Earlier installment — artwork & tracklist pending from client.", archive:true },
+  { title:"Bankhead Muscle 1", artist:"Westside Train", type:"album", artistSlug:"westside-train", cover:null, mono:"BM1",
     blurb:"Where the series began — original masters & credits to be confirmed.", archive:true }
 ];
 
@@ -869,9 +927,10 @@ const RELEASES = [
    yt: a YouTube video ID -> real thumbnail auto-pulled.
    thumb:'hq' uses the standard frame (for videos w/o HD art). */
 const VIDEOS = [
-  { title:"Donut", artist:"Westside Train feat. Cario", tag:"Music Video", yt:"SB5bOwFu2yI", url:"https://www.youtube.com/watch?v=SB5bOwFu2yI" },
-  { title:"Westside Train a.k.a. Bigg Mob", artist:"66 Raw Interview", tag:"Interview", yt:"aKxJwSGl9gU", thumb:"hq", url:"https://www.youtube.com/watch?v=aKxJwSGl9gU" },
-  { title:"Real People True Stories", artist:"Documentary Series", tag:"Documentary", yt:null, url:"https://www.youtube.com/@melvindavis1402/videos" }
+  { title:"Donut", artist:"Westside Train feat. Cario", tag:"Music Video", yt:"SB5bOwFu2yI", url:"https://www.youtube.com/watch?v=SB5bOwFu2yI", artistSlug:"westside-train" },
+  { title:"Balmain", artist:"feat. Cario", tag:"Music Video", yt:null, url:"https://music.apple.com/us/music-video/balmain-feat-cario/1569207238", artistSlug:"cario" },
+  { title:"Westside Train a.k.a. Bigg Mob", artist:"66 Raw Interview", tag:"Interview", yt:"aKxJwSGl9gU", thumb:"hq", url:"https://www.youtube.com/watch?v=aKxJwSGl9gU", artistSlug:"westside-train" },
+  { title:"Real People True Stories", artist:"Documentary Series", tag:"Documentary", yt:null, url:"https://www.youtube.com/@melvindavis1402/videos", artistSlug:"westside-train" }
 ];
 
 /* ---- PRODUCTS (MERCH) -----------------------------------------
@@ -897,18 +956,50 @@ const PRODUCTS = [
   var root = document.documentElement, body = document.body;
   var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); };
   var imgFallback = "this.style.display='none';this.parentNode.querySelector('.fb')&&(this.parentNode.querySelector('.fb').style.display='grid')";
+  var cap = function(s){ return String(s||'').replace(/^\w/,function(c){return c.toUpperCase();}); };
 
-  /* ---- ARTISTS ---- */
+  /* release card (no release years — catalog reads evergreen) */
+  function relCard(r,i){
+    var art = r.cover
+      ? '<img src="'+esc(r.cover)+'" alt="'+esc(r.title)+' cover" loading="lazy" onerror="'+imgFallback+'"><div class="fb rc-fallback" style="display:none"><div class="m">'+esc(r.mono)+'</div></div>'
+      : '<div class="rc-fallback"><div class="m">'+esc(r.mono)+'</div></div>';
+    var badge = r.archive ? '<span class="badge pending">Archive pending</span>' : '';
+    var play = r.primary ? '<a class="rc-play" href="'+esc(r.primary)+'" target="_blank" rel="noopener" aria-label="Play '+esc(r.title)+'"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></a>' : '';
+    var meta = r.tracks ? (r.tracks+' Tracks') : (r.archive ? 'From the vault' : 'Out now');
+    return '<article class="rel-card reveal d'+(i%4)+'" data-type="'+esc(r.type)+'"><div class="rc-art">'+art+badge+play+'</div>'
+      +'<div class="rc-body"><span class="t">'+esc(cap(r.type))+' · '+esc(r.genre||'Hip-Hop/Rap')+'</span>'
+      +'<h4>'+esc(r.title)+'</h4><div class="art-name">'+esc(r.artist)+'</div><div class="y">'+esc(meta)+'</div><p>'+esc(r.blurb||'')+'</p></div></article>';
+  }
+
+  /* video card */
+  function vidCard(v,i){
+    var thumb;
+    if(v.yt){
+      var q = v.thumb==='hq' ? 'hqdefault' : 'maxresdefault';
+      thumb = '<div class="v-thumb"><img src="https://img.youtube.com/vi/'+esc(v.yt)+'/'+q+'.jpg" alt="'+esc(v.title)+'" loading="lazy" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/'+esc(v.yt)+'/hqdefault.jpg\'"></div>';
+    } else { thumb = '<div class="v-fallback"></div>'; }
+    return '<a class="vid reveal d'+(i%4)+'" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+thumb+'<div class="v-grad"></div>'
+      +'<div class="pl"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
+      +'<div class="vc"><span class="tag">'+esc(v.tag)+'</span><h4>'+esc(v.title)+'</h4></div></a>';
+  }
+
+  /* ---- ARTISTS (cards open a full press kit / catalog) ---- */
   document.getElementById('rosterGrid').innerHTML = ARTISTS.map(function(a,i){
     var photo = a.img
       ? '<img src="'+esc(a.img)+'" alt="'+esc(a.name)+'" loading="lazy" onerror="'+imgFallback+'"><div class="a-fallback fb" style="display:none"><div class="mono">'+esc(a.mono)+'</div></div>'
       : '<div class="a-fallback"><div class="mono">'+esc(a.mono)+'</div></div>';
     var tags = (a.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
-    var links = (a.links||[]).map(function(l){return '<a href="'+esc(l.url)+'" target="_blank" rel="noopener">'+esc(l.label)+'</a>';}).join('');
-    return '<article class="artist reveal d'+(i%4)+'"><div class="a-photo">'+photo+'</div><div class="a-grad"></div>'
+    return '<article class="artist reveal d'+(i%4)+'" data-slug="'+esc(a.slug)+'" role="button" tabindex="0" aria-label="Open '+esc(a.name)+' press kit and catalog">'
+      +'<div class="a-photo">'+photo+'</div><div class="a-grad"></div>'
       +'<div class="a-body"><div class="a-role">'+esc(a.role)+'</div><div class="a-name">'+esc(a.name)+'</div>'
-      +'<div class="a-alias">'+esc(a.alias||'')+'</div><div class="a-tags">'+tags+'</div><div class="a-links">'+links+'</div></div></article>';
+      +'<div class="a-alias">'+esc(a.alias||'')+'</div><div class="a-tags">'+tags+'</div>'
+      +'<div class="a-cta">Press Kit &amp; Catalog <span aria-hidden="true">→</span></div></div></article>';
   }).join('');
+  document.querySelectorAll('#rosterGrid .artist').forEach(function(card){
+    var go = function(){ if(card.dataset.slug) location.hash = '/'+card.dataset.slug; };
+    card.addEventListener('click', go);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+  });
 
   /* ---- FEATURED RELEASE ---- */
   var feat = RELEASES.filter(function(r){return r.featured;})[0] || RELEASES[0];
@@ -922,7 +1013,7 @@ const PRODUCTS = [
       '<div class="cover reveal"><div class="tape">Featured Release</div>'+cover+'</div>'
       +'<div class="feature-meta reveal d1"><p class="eyebrow">Flagship Project · '+esc(r.artist)+'</p>'
       +'<h3>'+esc(r.title)+'</h3>'
-      +'<div class="spec"><span>'+r.year+'</span><span>Album</span><span>'+r.tracks+' Tracks</span><span>'+esc(r.duration)+'</span><span>'+esc(r.genre)+'</span></div>'
+      +'<div class="spec"><span>Album</span><span>'+r.tracks+' Tracks</span><span>'+esc(r.duration)+'</span><span>'+esc(r.genre)+'</span></div>'
       +'<p>'+esc(r.blurb)+'</p><div class="platforms">'+plats+'</div>'
       +'<button class="drawer-btn" id="trackBtn" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg><span>View Tracklist</span></button>'
       +'<div class="tracklist" id="tracklist"><ol>'+tl+'</ol></div>'
@@ -937,17 +1028,7 @@ const PRODUCTS = [
   })(feat);
 
   /* ---- MUSIC GRID ---- */
-  document.getElementById('relGrid').innerHTML = RELEASES.map(function(r,i){
-    var art = r.cover
-      ? '<img src="'+esc(r.cover)+'" alt="'+esc(r.title)+' cover" loading="lazy" onerror="'+imgFallback+'"><div class="fb rc-fallback" style="display:none"><div class="m">'+esc(r.mono)+'</div></div>'
-      : '<div class="rc-fallback"><div class="m">'+esc(r.mono)+'</div></div>';
-    var badge = r.archive ? '<span class="badge pending">Archive pending</span>' : '';
-    var play = r.primary ? '<a class="rc-play" href="'+esc(r.primary)+'" target="_blank" rel="noopener" aria-label="Play '+esc(r.title)+'"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></a>' : '';
-    var yr = r.year ? r.year+' · '+r.tracks+' tracks' : 'Details pending';
-    return '<article class="rel-card reveal d'+(i%4)+'" data-type="'+esc(r.type)+'"><div class="rc-art">'+art+badge+play+'</div>'
-      +'<div class="rc-body"><span class="t">'+esc((r.type||'').replace(/^\w/,function(c){return c.toUpperCase();}))+' · '+esc(r.genre||'Hip-Hop/Rap')+'</span>'
-      +'<h4>'+esc(r.title)+'</h4><div class="art-name">'+esc(r.artist)+'</div><div class="y">'+esc(yr)+'</div><p>'+esc(r.blurb||'')+'</p></div></article>';
-  }).join('');
+  document.getElementById('relGrid').innerHTML = RELEASES.map(function(r,i){ return relCard(r,i); }).join('');
 
   document.querySelectorAll('#musicFilters button').forEach(function(btn){
     btn.addEventListener('click',function(){
@@ -960,16 +1041,7 @@ const PRODUCTS = [
   });
 
   /* ---- VIDEOS ---- */
-  document.getElementById('vidGrid').innerHTML = VIDEOS.map(function(v,i){
-    var thumb;
-    if(v.yt){
-      var q = v.thumb==='hq' ? 'hqdefault' : 'maxresdefault';
-      thumb = '<div class="v-thumb"><img src="https://img.youtube.com/vi/'+esc(v.yt)+'/'+q+'.jpg" alt="'+esc(v.title)+'" loading="lazy" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/'+esc(v.yt)+'/hqdefault.jpg\'"></div>';
-    } else { thumb = '<div class="v-fallback"></div>'; }
-    return '<a class="vid reveal d'+(i%4)+'" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+thumb+'<div class="v-grad"></div>'
-      +'<div class="pl"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>'
-      +'<div class="vc"><span class="tag">'+esc(v.tag)+'</span><h4>'+esc(v.title)+'</h4></div></a>';
-  }).join('');
+  document.getElementById('vidGrid').innerHTML = VIDEOS.map(function(v,i){ return vidCard(v,i); }).join('');
 
   /* ---- SHOP ---- */
   var cart = [];
@@ -1145,9 +1217,63 @@ const PRODUCTS = [
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(code).then(done,done); } else { done(); }
   });
 
+  /* ---- ARTIST PRESS KIT / CATALOG (hash-routed & shareable) ---- */
+  var pkOverlay=document.getElementById('pkOverlay'), pkPanel=document.getElementById('pkPanel');
+  function pressKitHTML(a){
+    var rels = RELEASES.filter(function(r){return r.artistSlug===a.slug;});
+    var vids = VIDEOS.filter(function(v){return v.artistSlug===a.slug;});
+    var tags = (a.tags||[]).map(function(t){return '<span>'+esc(t)+'</span>';}).join('');
+    var links = (a.links||[]).map(function(l){return '<a class="plat" href="'+esc(l.url)+'" target="_blank" rel="noopener"><span class="g"></span>'+esc(l.label)+'</a>';}).join('');
+    var photo = a.img
+      ? '<img src="'+esc(a.img)+'" alt="'+esc(a.name)+'" onerror="this.style.display=\'none\';this.parentNode.querySelector(\'.pk-mono\').style.display=\'grid\'"><div class="pk-mono" style="display:none">'+esc(a.mono)+'</div>'
+      : '<div class="pk-mono">'+esc(a.mono)+'</div>';
+    var relBlock = rels.length
+      ? '<section class="pk-sec"><div class="sec-head"><div><span class="idx">Catalog</span><h3>Music</h3></div></div><div class="rel-grid">'+rels.map(function(r,i){return relCard(r,i);}).join('')+'</div></section>'
+      : '';
+    var vidBlock = vids.length
+      ? '<section class="pk-sec"><div class="sec-head"><div><span class="idx">Watch</span><h3>Videos</h3></div></div><div class="vid-grid">'+vids.map(function(v,i){return vidCard(v,i);}).join('')+'</div></section>'
+      : '';
+    return '<button class="pk-close" type="button" aria-label="Back to site">&larr; Back to site</button>'
+      +'<div class="pk-hero">'
+        +'<div class="pk-photo">'+photo+'<div class="pk-photo-grad"></div></div>'
+        +'<div class="pk-intro">'
+          +'<p class="eyebrow">827 Entertainment · Press Kit</p>'
+          +'<h1 class="pk-name">'+esc(a.name)+'</h1>'
+          +(a.alias?'<p class="pk-alias">'+esc(a.alias)+'</p>':'')
+          +'<p class="pk-role">'+esc(a.role)+'</p>'
+          +'<div class="pk-tags">'+tags+'</div>'
+          +'<p class="pk-bio">'+esc(a.bio||'')+'</p>'
+          +'<div class="pk-links">'+links+'</div>'
+          +'<div class="pk-actions"><a class="btn solid" href="#contact">Book '+esc(a.name)+'</a><button class="btn ghost pk-all" type="button">All Artists</button></div>'
+        +'</div>'
+      +'</div>'+relBlock+vidBlock;
+  }
+  var pkCurrent=null;
+  function openPK(slug){
+    var a=null,i; for(i=0;i<ARTISTS.length;i++){ if(ARTISTS[i].slug===slug){ a=ARTISTS[i]; break; } }
+    if(!a){ closePK(); return; }
+    if(pkCurrent!==slug){ pkPanel.innerHTML = pressKitHTML(a); pkCurrent=slug; }
+    pkOverlay.classList.add('show'); pkOverlay.setAttribute('aria-hidden','false'); body.classList.add('locked');
+    pkOverlay.scrollTop=0;
+    pkPanel.querySelector('.pk-close').onclick = function(){ location.hash='artists'; };
+    var all=pkPanel.querySelector('.pk-all'); if(all) all.onclick=function(){ location.hash='artists'; };
+    observeReveals();
+  }
+  function closePK(){
+    if(!pkOverlay.classList.contains('show')) return;
+    pkOverlay.classList.remove('show'); pkOverlay.setAttribute('aria-hidden','true'); body.classList.remove('locked'); pkCurrent=null;
+  }
+  function routePK(){
+    var m = (location.hash||'').match(/^#\/([a-z0-9-]+)$/i);
+    if(m){ openPK(decodeURIComponent(m[1])); } else { closePK(); }
+  }
+  window.addEventListener('hashchange', routePK);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && pkOverlay.classList.contains('show')) location.hash='artists'; });
+
   /* ---- INIT ---- */
   renderProducts();
   observeReveals();
+  routePK();
 
   /* ---- LOADER ---- */
   function revealSite(){
